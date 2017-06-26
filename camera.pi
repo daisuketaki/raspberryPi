@@ -2,13 +2,34 @@
 # -*- cording:uft-8 -*-
 
 import cv2
+import time
+import RPi.GPIO as GPIO
 
-c = cv2.VideoCapture(0)
-c.read()
-r, img = c.read()
-cv2.imwrite('capture.jpg', img)
-c.release()
+SAVE_DIR = "/home/pi/Documents/practice/pictures/"
+SENSOR_PIN = 18
+INTAVAL = 10
+SLEEPTIME = 5
 
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(SENSOR_PIN, GPIO.IN)
+
+st = time.time() - INTAVAL
+
+print "SENSOR is running"
+
+while True:
+	if(GPIO.input(SENSOR_PIN) == GPIO.HIGH) and (st + INTAVAL < time.time()):
+		print "Detect!"
+		st = time.time()
+		filename =  "capture"+ time.strftime("%Y%m%d%H%M%S") + ".jpg"
+		save_dire = SAVE_DIR + filename
+		c = cv2.VideoCapture(0)
+		c.read()
+		r, img = c.read()
+		cv2.imwrite(save_dire, img)
+		c.release()
+	time.sleep(SLEEPTIME)
+GPIO.cleanup()
 
 
 
